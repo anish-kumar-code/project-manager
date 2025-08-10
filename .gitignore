@@ -1,0 +1,76 @@
+# ========================
+# FRONTEND IGNORE RULES
+# ========================
+
+# Logs
+/frontend/logs
+/frontend/*.log
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/pnpm-debug.log*
+/frontend/lerna-debug.log*
+
+# Dependencies
+/frontend/node_modules
+
+# Build output
+/frontend/dist
+/frontend/dist-ssr
+/frontend/*.local
+
+# Editor settings
+/frontend/.vscode/*
+!/frontend/.vscode/extensions.json
+/frontend/.idea
+/frontend/.DS_Store
+/frontend/*.suo
+/frontend/*.ntvs*
+/frontend/*.njsproj
+/frontend/*.sln
+/frontend/*.sw?
+
+# ========================
+# BACKEND IGNORE RULES
+# ========================
+
+# Logs
+/backend/logs
+/backend/*.log
+/backend/npm-debug.log*
+/backend/yarn-debug.log*
+/backend/yarn-error.log*
+
+# Dependencies
+/backend/node_modules
+
+# Environment files
+/backend/.env
+/backend/.env/
+/backend/.env.local
+/backend/.env.development.local
+/backend/.env.test.local
+/backend/.env.production.local
+/backend/.env.*
+/backend/config.env.*
+
+# Public folder (optional — depends if it's build or static)
+# /backend/public
+# /backend/public/
+
+# firbase code
+/backend/src/firebase/
+/backend/src/firebase/*
+
+# Build output
+/backend/.out/
+/backend/.next/
+
+# Editor settings
+/backend/.vscode/
+/backend/.idea/
+/backend/.DS_Store
+
+# Dependency directories
+/backend/.pnp
+/backend/.pnp.js
