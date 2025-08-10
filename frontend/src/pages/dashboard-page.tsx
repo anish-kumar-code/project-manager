@@ -1,30 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import {
-    Card,
-    Typography,
-    Button,
-    Table,
-    Modal,
-    Form,
-    Input,
-    message,
-    Popconfirm,
-    Space,
-    Tag,
-    Select,
-} from "antd";
-import {
-    PlusOutlined,
-    EyeOutlined,
-    EditOutlined,
-    DeleteOutlined,
-} from "@ant-design/icons";
+import { Card, Button, Table, Modal, Form, Input, message, Popconfirm, Space, Tag, Select, Tooltip } from "antd";
+import { PlusOutlined, EyeOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Link } from "react-router";
 import type { Project } from "@/types";
 import api from "@/services/api";
 import { useDebounce } from "@/hooks/use-debounce";
 
-const { Title } = Typography;
 const { TextArea } = Input;
 const { Search } = Input;
 
@@ -100,25 +81,19 @@ const DashboardPage = () => {
         }
     };
 
-    const handleFormSubmit = async (values: {
-        title: string;
-        description: string;
-    }) => {
+    const handleFormSubmit = async (values: { title: string; description: string; status: string }) => {
         setModalLoading(true);
+        const apiCall = editingProject
+            ? api.patch(`/projects/${editingProject._id}`, values)
+            : api.post("/projects", values);
         try {
-            if (editingProject) {
-                await api.patch(`/projects/${editingProject._id}`, values);
-                message.success("Project updated successfully!");
-            } else {
-                await api.post("/projects", values);
-                message.success("Project created successfully!");
-            }
+            await apiCall;
+            message.success(`Project ${editingProject ? "updated" : "created"} successfully!`);
             handleCancel();
-            fetchProjects(currentPage, debouncedSearchTerm); // Re-fetch data after any change
+            // Always re-fetch the current page for consistency after any change
+            fetchProjects(currentPage, debouncedSearchTerm);
         } catch (error) {
-            message.error(
-                `Failed to ${editingProject ? "update" : "create"} project.`
-            );
+            message.error(`Failed to ${editingProject ? "update" : "create"} project.`);
         } finally {
             setModalLoading(false);
         }
@@ -126,86 +101,41 @@ const DashboardPage = () => {
 
     // --- Table Column Definitions ---
     const columns = [
+        { title: "Sr. No.", key: "srNo", render: (_: any, _record: Project, index: number) => (currentPage - 1) * pageSize + index + 1 },
+        { title: "Project Name", dataIndex: "title", key: "title", render: (text: string, record: Project) => <Link to={`/project/${record._id}`}>{text}</Link> },
+        { title: "Project Status", dataIndex: "status", key: "status", render: (text: string) => <Tag color={text === "completed" ? "green" : "blue"}>{text}</Tag> },
         {
-            title: "Sr. No.",
-            key: "srNo",
-            render: (_: any, record: Project, index: number) =>
-                (currentPage - 1) * pageSize + index + 1,
-        },
-        {
-            title: "Project Name",
-            dataIndex: "title",
-            key: "title",
-            render: (text: string, record: Project) => (
-                <Link to={`/project/${record._id}`}>{text}</Link>
-            ),
-        },
-        {
-            title: "Project Status",
-            dataIndex: "status",
-            key: "status",
-            render: (text: string, record: Project) => (
-                <Tag color={text == "completed" ? "green" : "blue"}>{text}</Tag>
-            ),
-        },
-        {
-            title: "Task Count",
-            key: "taskCount",
-            render: (_: any, record: Project) => (
+            title: "Task Count", key: "taskCount", render: (_: any, record: Project) => (
                 <Space wrap>
                     <Tag>Total: {record.totalTasks}</Tag>
                     <Tag color="gold">To Do: {record.todoTasks}</Tag>
                     <Tag color="blue">In Progress: {record.inProgressTasks}</Tag>
                     <Tag color="green">Done: {record.doneTasks}</Tag>
                 </Space>
-            ),
+            )
         },
         {
-            title: "Action",
-            key: "action",
-            render: (_: any, record: Project) => (
+            title: "Action", key: "action", render: (_: any, record: Project) => (
                 <Space size="middle">
-                    <Link to={`/project/${record._id}`}>
-                        <Button icon={<EyeOutlined />}>View</Button>
-                    </Link>
-                    <Button icon={<EditOutlined />} onClick={() => showEditModal(record)}>
-                        Edit
-                    </Button>
-                    <Popconfirm
-                        title="Sure to delete?"
-                        onConfirm={() => handleDeleteProject(record._id)}
-                    >
-                        <Button danger icon={<DeleteOutlined />}>
-                            Delete
-                        </Button>
-                    </Popconfirm>
+                    <Tooltip title="View Project"><Link to={`/project/${record._id}`}><Button icon={<EyeOutlined />} /></Link></Tooltip>
+                    <Tooltip title="Edit Project"><Button icon={<EditOutlined />} onClick={() => showEditModal(record)} /></Tooltip>
+                    <Tooltip title="Delete Project"><Popconfirm title="Sure to delete?" onConfirm={() => handleDeleteProject(record._id)}><Button danger icon={<DeleteOutlined />} /></Popconfirm></Tooltip>
                 </Space>
-            ),
+            )
         },
     ];
 
     return (
         <>
-            <Card bordered={false}>
+            <Card variant="borderless"> {/* <-- FIX: Changed `bordered={false}` to `variant="borderless"` */}
                 <div className="flex justify-between items-center mb-6">
                     <div className="w-1/3">
-                        <Search
-                            placeholder="Search projects..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            enterButton
-                        />
+                        <Search placeholder="Search projects..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} enterButton />
                     </div>
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={showCreateModal}
-                        size="large"
-                    >
+                    <Button type="primary" icon={<PlusOutlined />} onClick={showCreateModal} size="large">
                         Add Project
                     </Button>
                 </div>
-
                 <Table
                     columns={columns}
                     dataSource={projects}
@@ -224,43 +154,24 @@ const DashboardPage = () => {
                 title={editingProject ? "Edit Project" : "Create Project"}
                 open={isModalVisible}
                 onCancel={handleCancel}
-                destroyOnClose
+                destroyOnHidden // <-- FIX: Changed `destroyOnClose` to `destroyOnHidden`
                 footer={null}
             >
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={handleFormSubmit}
-                    className="mt-6"
-                >
-                    <Form.Item
-                        name="title"
-                        label="Project Title"
-                        rules={[{ required: true }]}
-                    >
+                <Form form={form} layout="vertical" onFinish={handleFormSubmit} className="mt-6">
+                    <Form.Item name="title" label="Project Title" rules={[{ required: true }]}>
                         <Input />
                     </Form.Item>
-                    <Form.Item
-                        name="description"
-                        label="Project Description"
-                        rules={[{ required: true }]}
-                    >
+                    <Form.Item name="description" label="Project Description" rules={[{ required: true }]}>
                         <TextArea rows={4} />
                     </Form.Item>
-
                     {editingProject && (
-                        <Form.Item
-                            name="status"
-                            label="Status"
-                            rules={[{ required: true }]}
-                        >
+                        <Form.Item name="status" label="Status" rules={[{ required: true }]}>
                             <Select>
-                                <Option value="active">active</Option>
-                                <Option value="completed">completed</Option>
+                                <Select.Option value="active">active</Select.Option> {/* <-- FIX: Used Select.Option */}
+                                <Select.Option value="completed">completed</Select.Option> {/* <-- FIX: Used Select.Option */}
                             </Select>
                         </Form.Item>
                     )}
-
                     <Form.Item className="text-right">
                         <Button onClick={handleCancel} style={{ marginRight: "10px" }}>Cancel</Button>
                         <Button type="primary" htmlType="submit" loading={modalLoading}>

@@ -1,8 +1,7 @@
-// src/setupTests.ts
+
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
 
-// Mock for window.matchMedia
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: vi.fn().mockImplementation((query) => ({
@@ -17,11 +16,9 @@ Object.defineProperty(window, "matchMedia", {
   })),
 });
 
-// --- ADD THIS NEW MOCK ---
-// Mock for window.getComputedStyle
 Object.defineProperty(window, "getComputedStyle", {
   value: () => ({
-    getPropertyValue: (prop: any) => {
+    getPropertyValue: () => {
       return "";
     },
   }),

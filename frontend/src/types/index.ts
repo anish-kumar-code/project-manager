@@ -14,6 +14,7 @@ export interface Project {
     owner: string; // This will be the User's _id
     createdAt: string;
     updatedAt: string;
+    key?: string;
     totalTasks: number;
     todoTasks: number;
     inProgressTasks: number;

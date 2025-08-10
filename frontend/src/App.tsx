@@ -5,7 +5,6 @@ import LoginPage from './pages/login-page';
 import RegisterPage from './pages/register-page';
 import ProtectedRoute from './components/protected-route'; // <-- IMPORT
 import ProjectDetailPage from './pages/project-detail-page';
-import { AppThemeProvider } from './context/theme-context';
 
 // Define the application's routes
 const router = createBrowserRouter([
@@ -13,9 +12,7 @@ const router = createBrowserRouter([
     path: '/',
     element: (
       <ProtectedRoute>
-        <AppThemeProvider>
-          <AppLayout />
-        </AppThemeProvider>
+        <AppLayout />
       </ProtectedRoute>
     ),
     children: [
