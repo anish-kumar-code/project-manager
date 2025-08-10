@@ -15,7 +15,7 @@ const origin = process.env.CORS_ORIGIN;
 // CORS settings
 app.use(
     cors({
-        origin: process.env.CORS_ORIGIN,
+        origin: "https://cerulean-beignet-c3a617.netlify.app",
         credentials: true,
     })
 );
