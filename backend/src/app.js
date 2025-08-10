@@ -15,7 +15,7 @@ const origin = process.env.CORS_ORIGIN;
 // CORS settings
 app.use(
     cors({
-        origin: "*",
+        origin: process.env.CORS_ORIGIN,
         credentials: true,
     })
 );
