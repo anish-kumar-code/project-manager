@@ -10,11 +10,12 @@ import projectRouter from './routes/project.routes.js'
 import { errorHandler } from "./middlewares/error.middleware.js";
 
 const app = express();
+const origin = process.env.CORS_ORIGIN;
 
 // CORS settings
 app.use(
     cors({
-        origin: ["http://localhost:5173", "*"],
+        origin: origin,
         credentials: true,
     })
 );
